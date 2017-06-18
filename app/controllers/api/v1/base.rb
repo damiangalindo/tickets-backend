@@ -3,6 +3,7 @@ module API
     class Base < Grape::API
       mount API::V1::Tickets
       mount API::V1::Users
+      mount API::V1::Responses
 
       add_swagger_documentation(
         info: {

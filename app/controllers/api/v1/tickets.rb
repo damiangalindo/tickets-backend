@@ -10,27 +10,55 @@ module API
              headers: auth_headers
 
         params do
-          requires :user_id, type: String, desc: 'User ID'
           requires :subject, type: String, desc: 'Subject of the Ticket'
           requires :message, type: String, desc: 'Message of the Ticket'
         end
 
         post :create do
-          authenticate!
-          r = { code: code, message: 'Success' }
-          present r, with: API::Entities::ApiSuccess
+          authenticate_customer!
+          ticket = current_customer.tickets.new(
+                     subject: params[:subject],
+                     message: params[:message]
+                   )
+
+          if ticket.save
+            response = ticket
+            type = API::Entities::Ticket
+          else
+            response = { code: 422, message: ticket.errors.full_messages.join(', ') }
+            type = API::Entities::ApiError
+          end
+
+          present response, with: type
         end
 
         desc 'Get the tickets for a Agent',
              headers: auth_headers
 
-        route_param :agent_id do
-          get do
-            authenticate!
+        params do
+          optional :agent_id, type: String, desc: 'Agent ID'
+        end
 
-            response = Ticket.where(closed_by_id: params[:agent_id])
+        get do
+          authenticate_agent!
 
-            present response, with: API::Entities::Ticket
+          id = params[:agent_id].present? ? params[:agent_id] : current_agent.id
+          tickets = Ticket.where(closed_by_id: id)
+
+          present tickets, with: API::Entities::Ticket
+        end
+
+        desc 'Close a ticket',
+             headers: auth_headers
+
+        route_param :ticket_id do
+          put :close do
+            authenticate_agent!
+
+            ticket = Ticket.find(params[:ticket_id])
+            ticket.close!
+
+            present ticket, with: API::Entities::Ticket
           end
         end
       end

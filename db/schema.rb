@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170617210522) do
+ActiveRecord::Schema.define(version: 20170618025811) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,22 +34,22 @@ ActiveRecord::Schema.define(version: 20170617210522) do
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
-  create_table "reponses", force: :cascade do |t|
+  create_table "responses", force: :cascade do |t|
     t.bigint "ticket_id"
     t.bigint "user_id"
-    t.text "response"
+    t.text "response", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["ticket_id"], name: "index_reponses_on_ticket_id"
-    t.index ["user_id"], name: "index_reponses_on_user_id"
+    t.index ["ticket_id"], name: "index_responses_on_ticket_id"
+    t.index ["user_id"], name: "index_responses_on_user_id"
   end
 
   create_table "tickets", force: :cascade do |t|
-    t.text "message"
-    t.string "status"
-    t.bigint "user_id"
+    t.text "message", null: false
+    t.string "state", default: "open", null: false
+    t.bigint "user_id", null: false
     t.integer "closed_by_id"
-    t.string "subject"
+    t.string "subject", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_tickets_on_user_id"
@@ -76,9 +76,10 @@ ActiveRecord::Schema.define(version: 20170617210522) do
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["user_type", "username"], name: "index_users_on_user_type_and_username", unique: true
   end
 
-  add_foreign_key "reponses", "tickets"
-  add_foreign_key "reponses", "users"
+  add_foreign_key "responses", "tickets"
+  add_foreign_key "responses", "users"
   add_foreign_key "tickets", "users"
 end

@@ -1,9 +1,9 @@
-class CreateReponses < ActiveRecord::Migration[5.1]
+class CreateResponses < ActiveRecord::Migration[5.1]
   def change
-    create_table :reponses do |t|
+    create_table :responses do |t|
       t.references :ticket, foreign_key: true
       t.references :user, foreign_key: true
-      t.text :response
+      t.text :response, null: false
 
       t.timestamps
     end

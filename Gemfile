@@ -59,6 +59,7 @@ group :test do
   gem 'database_cleaner', '~> 1.5', '>= 1.5.3'
   gem 'json_spec', '~> 1.1', '>= 1.1.4'
   gem 'launchy'
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers', '~> 3.1', '>= 3.1.1'
   gem 'simplecov', '~> 0.11.2'
 end

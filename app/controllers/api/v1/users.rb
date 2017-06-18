@@ -32,7 +32,7 @@ module API
             response = { code: 201, message: 'Success' }
             type = API::Entities::ApiSuccess
           else
-            response = { code: 201, message: user.errors.full_messages.join(', ') }
+            response = { code: 422, message: user.errors.full_messages.join(', ') }
             type = API::Entities::ApiError
           end
 

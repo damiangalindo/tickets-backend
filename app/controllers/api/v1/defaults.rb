@@ -29,8 +29,60 @@ module API
             Rails.logger
           end
 
+          def authentication_token
+            request.headers['Authorization'].presence
+          end
+
+          def authenticate_user!
+            if !authenticated && !current_user
+              error!(
+                {
+                  code: 401,
+                  message: 'Unauthorized',
+                  with: API::Entities::ApiError
+                }, 401
+              )
+            end
+          end
+
+          def authenticate_customer!
+            if !authenticated && !current_user
+              error!(
+                {
+                  code: 401,
+                  message: 'Unauthorized',
+                  with: API::Entities::ApiError
+                }, 401
+              )
+            end
+          end
+
+          def authenticate_agent!
+            if !authenticated && !current_agent
+              error!(
+                {
+                  code: 401,
+                  message: 'Unauthorized',
+                  with: API::Entities::ApiError
+                }, 401
+              )
+            end
+          end
+
           def authenticated
-            true
+            authentication_token && (current_customer || current_agent || current_user)
+          end
+
+          def current_user
+            User.find_by(authentication_token: authentication_token)
+          end
+
+          def current_customer
+            User.find_by(authentication_token: authentication_token, user_type: 'customer')
+          end
+
+          def current_agent
+            User.find_by(authentication_token: authentication_token, user_type: 'agent')
           end
         end
 

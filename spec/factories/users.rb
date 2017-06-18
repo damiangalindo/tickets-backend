@@ -6,7 +6,7 @@
 #  email                  :string           default(""), not null
 #  encrypted_password     :string           default(""), not null
 #  username               :string           default(""), not null
-#  type                   :string           default("user"), not null
+#  user_type              :string           default("customer"), not null
 #  first_name             :string
 #  last_name              :string
 #  reset_password_token   :string
@@ -21,9 +21,23 @@
 #  updated_at             :datetime         not null
 #  authentication_token   :string(30)
 #
+# Indexes
+#
+#  index_users_on_authentication_token    (authentication_token) UNIQUE
+#  index_users_on_email                   (email) UNIQUE
+#  index_users_on_reset_password_token    (reset_password_token) UNIQUE
+#  index_users_on_user_type_and_username  (user_type,username) UNIQUE
+#
 
 FactoryGirl.define do
   factory :user do
-    
+    sequence(:username) { |n| "username#{n}" }
+    sequence(:email) { |n| "person#{n}@example.com" }
+    password 'password'
+    password_confirmation 'password'
+
+    trait :agent do
+      user_type 'agent'
+    end
   end
 end
