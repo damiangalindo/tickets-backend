@@ -41,4 +41,9 @@ class User < ApplicationRecord
 
   validates :user_type, presence: true, inclusion: { in: %w(customer agent) }
   validates :username, presence: true, format: { with: VALID_USERNAME_FORMAT, message: 'is not a valid username' }, uniqueness: { scope: [:user_type] }
+
+  def self.authenticate(email, password)
+    user = User.find_for_authentication(email: email)
+    user.valid_password?(password) ? user : nil
+  end
 end

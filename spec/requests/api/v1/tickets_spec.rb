@@ -11,7 +11,7 @@ RSpec.describe API::V1::Tickets do
   let!(:user) { create(:user, authentication_token: 'abcd1234') }
   let(:json) { last_response.body }
 
-  context 'GET /api/v1/tickets' do
+  context 'GET /api/v1/tickets/all' do
     let!(:agent_tickets) { create_list(:ticket, 5, user: user, closed_by_id: agent.id, state: 'closed') }
 
     let!(:tickets) { create_list(:ticket, 5, user: user, state: 'open') }
@@ -21,7 +21,7 @@ RSpec.describe API::V1::Tickets do
     describe 'on Success' do
       before do
         header 'Authorization', agent.authentication_token
-        get '/v1/tickets'
+        get '/v1/tickets/all'
         json
       end
 
@@ -37,7 +37,49 @@ RSpec.describe API::V1::Tickets do
     describe 'on Fail' do
       context 'when authentication_token is missing' do
         before do
-          get '/v1/tickets'
+          get '/v1/tickets/all'
+          json
+        end
+
+        it 'returns a 401 code' do
+          expect(last_response.status).to eq(401)
+        end
+
+        it 'returs an error in the message' do
+          response = JSON.parse(json)
+          expect(response['message']).to eq('Unauthorized')
+        end
+      end
+    end
+  end
+
+  context 'GET /api/v1/tickets/closed' do
+    let!(:agent_tickets) { create_list(:ticket, 5, user: user, closed_by_id: agent.id, state: 'closed') }
+
+    let!(:tickets) { create_list(:ticket, 5, user: user, state: 'open') }
+
+    let(:parsed_json) { parse_json(json) }
+
+    describe 'on Success' do
+      before do
+        header 'Authorization', agent.authentication_token
+        get '/v1/tickets/closed'
+        json
+      end
+
+      it 'returns a 200 code' do
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'include the closed tickets' do
+        expect(json).to have_json_path('tickets/0/id')
+      end
+    end
+
+    describe 'on Fail' do
+      context 'when authentication_token is missing' do
+        before do
+          get '/v1/tickets/closed'
           json
         end
 

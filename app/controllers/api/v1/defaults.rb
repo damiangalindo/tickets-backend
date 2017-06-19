@@ -34,7 +34,19 @@ module API
           end
 
           def authenticate_user!
-            if !authenticated && !current_user
+            if !authenticated_user && !current_user
+              error!(
+                {
+                  code: 401,
+                  message: 'Unauthorized',
+                  with: API::Entities::ApiError
+                }, 401
+              )
+            end
+          end
+
+          def authenticate_admin!
+            if !authenticated_admin && !current_admin
               error!(
                 {
                   code: 401,
@@ -46,7 +58,7 @@ module API
           end
 
           def authenticate_customer!
-            if !authenticated && !current_user
+            if !authenticated_customer && !current_customer
               error!(
                 {
                   code: 401,
@@ -58,7 +70,7 @@ module API
           end
 
           def authenticate_agent!
-            if !authenticated && !current_agent
+            if !authenticated_agent && !current_agent
               error!(
                 {
                   code: 401,
@@ -67,10 +79,6 @@ module API
                 }, 401
               )
             end
-          end
-
-          def authenticated
-            authentication_token && (current_customer || current_agent || current_user)
           end
 
           def current_user
@@ -83,6 +91,16 @@ module API
 
           def current_agent
             User.find_by(authentication_token: authentication_token, user_type: 'agent')
+          end
+
+          def current_admin
+            Admin.find_by(authentication_token: authentication_token)
+          end
+
+          %w(admin customer agent user).each do |role|
+            define_method "authenticated_#{role}" do
+              authentication_token && eval("current_#{role}")
+            end
           end
         end
 

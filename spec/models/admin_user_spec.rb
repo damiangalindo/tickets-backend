@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: admins
+# Table name: admin_users
 #
 #  id                     :integer          not null, primary key
 #  email                  :string           default(""), not null
@@ -15,19 +15,15 @@
 #  last_sign_in_ip        :inet
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
-#  authentication_token   :string(30)
 #
 # Indexes
 #
-#  index_admins_on_authentication_token  (authentication_token) UNIQUE
-#  index_admins_on_email                 (email) UNIQUE
-#  index_admins_on_reset_password_token  (reset_password_token) UNIQUE
+#  index_admin_users_on_email                 (email) UNIQUE
+#  index_admin_users_on_reset_password_token  (reset_password_token) UNIQUE
 #
 
-FactoryGirl.define do
-  factory :admin do
-    sequence(:email) { |n| "admin#{n}@example.com" }
-    password 'password'
-    password_confirmation 'password'
-  end
+require 'rails_helper'
+
+RSpec.describe AdminUser, type: :model do
+  pending "add some examples to (or delete) #{__FILE__}"
 end

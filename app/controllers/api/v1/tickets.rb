@@ -32,18 +32,32 @@ module API
           present response, with: type
         end
 
-        desc 'Get the tickets for a Agent',
+        desc 'Get the tickets for an Agent',
              headers: auth_headers
 
         params do
           optional :agent_id, type: String, desc: 'Agent ID'
         end
 
-        get do
+        get :closed do
           authenticate_agent!
 
           id = params[:agent_id].present? ? params[:agent_id] : current_agent.id
-          tickets = Ticket.where(closed_by_id: id)
+          tickets = Ticket.where(closed_by_id: id).order('updated_at DESC')
+
+          present tickets, with: API::Entities::Ticket
+        end
+
+        desc 'Return all the tickets',
+             headers: auth_headers
+        get :all do
+          authenticate_user!
+
+          tickets = if current_agent
+                      Ticket.all.first(30)
+                    elsif current_customer
+                      current_customer.tickets
+                    end
 
           present tickets, with: API::Entities::Ticket
         end
@@ -56,7 +70,21 @@ module API
             authenticate_agent!
 
             ticket = Ticket.find(params[:ticket_id])
+            ticket.closed_by_id = current_agent.id
             ticket.close!
+
+            present ticket, with: API::Entities::Ticket
+          end
+        end
+
+        desc 'Show a ticket',
+             headers: auth_headers
+
+        route_param :ticket_id do
+          get :show do
+            authenticate_user!
+
+            ticket = Ticket.find(params[:ticket_id])
 
             present ticket, with: API::Entities::Ticket
           end

@@ -13,6 +13,7 @@ end
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 gem 'aasm', '~> 4.11'
+gem 'activeadmin'
 gem 'annotate'
 gem 'coffee-rails', '~> 4.2'
 gem 'devise'

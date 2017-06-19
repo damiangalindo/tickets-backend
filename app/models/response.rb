@@ -24,5 +24,8 @@ class Response < ApplicationRecord
   belongs_to :ticket
   belongs_to :user
 
+  delegate :username, to: :user
+  delegate :user_type, to: :user
+
   validates :response, presence: true
 end

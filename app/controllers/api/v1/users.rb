@@ -32,7 +32,7 @@ module API
             response = { code: 201, message: 'Success' }
             type = API::Entities::ApiSuccess
           else
-            response = { code: 422, message: user.errors.full_messages.join(', ') }
+            response = { code: 422, message: user.errors }
             type = API::Entities::ApiError
           end
 
@@ -40,14 +40,27 @@ module API
         end
 
 
-        desc 'Login a user with email/password and return a authentication_token'
+        desc 'Login a user with email/password and return an authentication_token'
         params do
           requires :email, type: String, desc: 'User email'
           requires :password, type: String, desc: 'User password'
         end
 
         post :login do
-          puts warden.authenticate(params[:email], params[:password])
+          user = User.authenticate(params[:email], params[:password])
+
+          present user, with: API::Entities::User
+        end
+
+        desc 'Logout a user with an authentication_token',
+          headers: auth_headers
+
+        delete :logout do
+          authenticate_user!
+          current_user.update_attributes(authentication_token: nil)
+
+          response = { code: 200, message: 'Success' }
+          present response, with: API::Entities::ApiSuccess
         end
       end
     end
